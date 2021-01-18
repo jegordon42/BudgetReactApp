@@ -55,7 +55,7 @@ export default function SignUp(props) {
   const [password, setPassword] = useState("")
 
   function handleSignUp(){
-    fetch('https://budgetflaskapp.azurewebsites.net/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
+    fetch('/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
       .then(response => response.json())
       .then(result => {
         if(result['message'] == 'Success'){

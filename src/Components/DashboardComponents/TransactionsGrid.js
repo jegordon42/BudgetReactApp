@@ -20,7 +20,7 @@ function TransactionsGrid(props) {
   }
 
   function saveTransactions(transactions){
-    fetch('https://budgetflaskapp.azurewebsites.net/UpdateTransactions', {
+    fetch('/UpdateTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({

@@ -70,7 +70,7 @@ function Settings(props) {
     }
 
     function saveCategories(categories, categoryType){
-        fetch('https://budgetflaskapp.azurewebsites.net/UpdateCategories', {
+        fetch('/UpdateCategories', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
