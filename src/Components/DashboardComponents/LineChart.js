@@ -112,14 +112,21 @@ function LineChart(props) {
 
   return (
     <Grid container spacing={1}>
-      <Grid item xs={6}>
+      <Grid item xs={3}>
+      `<ButtonGroup size="sm" style={{float:'left', marginBottom:2}}>
+          <Button variant="success" active={expenseIncomeButton == 0 ? true : false} onClick={() => handleClick("expenseIncome", 0)}>Week</Button>
+          <Button variant="success" active={expenseIncomeButton == 1 ? true : false} onClick={() => handleClick("expenseIncome", 1)}>Month</Button>
+          <Button variant="success" active={expenseIncomeButton == 1 ? true : false} onClick={() => handleClick("expenseIncome", 1)}>Year</Button>
+        </ButtonGroup>
+      </Grid>
+      <Grid item xs={3}>
         <br/><br/>
         <h5 style={{float:'right'}}>Total Expenses</h5>
       </Grid>
       <Grid item xs={3}></Grid>
       <Grid item xs={3}>
         <ButtonGroup size="sm" style={{float:'right', marginBottom:2}}>
-          <Button variant="success" active={expenseIncomeButton == 0 ? true : false} onClick={() => handleClick("expenseIncome", 0)}>Expenses</Button>
+          <Button variant="success" active={expenseIncomeButton == 0 ? true : false} onClick={() => handleClick("expenseIncome", 0)}>Expe3nses</Button>
           <Button variant="success" active={expenseIncomeButton == 1 ? true : false} onClick={() => handleClick("expenseIncome", 1)}>Income</Button>
         </ButtonGroup>
         <br/>

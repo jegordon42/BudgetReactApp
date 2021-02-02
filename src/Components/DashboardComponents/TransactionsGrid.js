@@ -69,6 +69,14 @@ function TransactionsGrid(props) {
           </Form.Control>
   }
 
+  function CategoryFilter(){
+    return <Form.Control as="select" style={{width:'100%'}}>
+              <option key={0} value={0}>All</option>
+              {props.categories.map((category) => 
+                <option key={category.CategoryId} value={category.CategoryId}>{category.CategoryName}</option>
+              )}
+            </Form.Control>
+  }
   function LeftAlignedCellRenderer(params){
     return <p style={{textAlign:'left'}}>{params.value}</p>
   }
@@ -121,10 +129,10 @@ function TransactionsGrid(props) {
                 onCellValueChanged = {onCellValueChanged}
               >
                 <AgGridColumn headerName="" field="TransactionId" maxWidth={50} resizable cellRendererFramework={CheckBoxCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Category" field="CategoryId" width={200} editable resizable cellRendererFramework={CategoryCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Description" field="Description" maxWidth={300} editable resizable cellRendererFramework={LeftAlignedCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Amount" field="Amount" width={100} editable resizable cellRendererFramework={MoneyCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Date" field="Date" width={130} editable resizable cellRendererFramework={DateCellRenderer}></AgGridColumn>
+                <AgGridColumn headerName="Category" field="CategoryId" width={200} editable resizable cellRendererFramework={CategoryCellRenderer} filterFramework={CategoryFilter} sortable ></AgGridColumn>
+                <AgGridColumn headerName="Description" field="Description" maxWidth={300} editable resizable cellRendererFramework={LeftAlignedCellRenderer} filter='agDateColumnFilter'></AgGridColumn>
+                <AgGridColumn headerName="Amount" field="Amount" width={130} editable resizable cellRendererFramework={MoneyCellRenderer} filter='agNumberColumnFilter'></AgGridColumn>
+                <AgGridColumn headerName="Date" field="Date" width={130} editable resizable cellRendererFramework={DateCellRenderer} filter='agDateColumnFilter'></AgGridColumn>
               </AgGridReact>
           </div>
           <ImportTransaction show={showImport} TransactionType={props.TransactionType} handleClose={() => {setShowImport(false)}} />

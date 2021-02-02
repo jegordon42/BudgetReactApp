@@ -7,16 +7,20 @@ function Header(props) {
   return (
     <Navbar bg="light" variant="light">
       <Navbar.Brand>
-          <img
-          alt=""
-          src="money-logo.png"
-          width="30"
-          height="30"
-          className="d-inline-block align-top"
-          style={{display:'inline'}}
-          />{' '}
-          {props.user != null && props.user['firstName'] + "'s Money" }
-          {props.user == null && "Money" }
+        {props.user != null && (
+          <div>
+            {/* <img
+              alt=""
+              //src="money-logo.png"
+              width="30"
+              height="30"
+              className="d-inline-block align-top"
+              style={{display:'inline'}}
+              /> */}
+              {props.user['firstName'] + "'s Money" }
+          </div>
+          )
+        }
       </Navbar.Brand>
       <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
         {props.page==="dashboard" && (

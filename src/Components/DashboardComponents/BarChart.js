@@ -1,25 +1,12 @@
 import React, {useState} from 'react';
 import {Bar} from 'react-chartjs-2';
-import {ButtonGroup, Button} from 'react-bootstrap';
-import Grid from '@material-ui/core/Grid';
+import BarButtons from './BarButtons'
 
 function BarChart(props) {
   const [expenseIncomeButton, setExpenseIncomeButton] = useState(0)
   const [totalCategoryButton, setTotalCategoryButton] = useState(0)
-  const titles = [['Total Expenses', 'Expenses By Category'],['Total Income', 'Income By Category']]
-  const colors = [
-    '#FFADAD',
-    '#FFD6A5',
-    '#FDFFB6',
-    '#CAFFBF',
-    '#9BF6FF',
-    '#A0C4FF',
-    '#BDB2FF',
-    '#FFC6FF',
-    '#F72585',
-    '#7209B7',
-    '#4361EE'
-  ];
+  const [dateButton, setDateButton] = useState(0)
+  const colors = ['#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF', '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF', '#F72585', '#7209B7', '#4361EE'];
 
   function getBarChartData(){
     var transactions = expenseIncomeButton == 0 ? props.expenseTransactions : props.incomeTransactions;
@@ -60,13 +47,6 @@ function BarChart(props) {
         backgroundColor: '#CAFFBF',
         borderWidth:0
       })
-      // datasets.push({
-      //   label: 'Planned Spending',
-      //   data: plannedData,
-      //   stack:'2',
-      //   backgroundColor: '#CAFFBF',
-      //   borderWidth:0
-      // })
     }else{
       var categories = expenseIncomeButton == 0 ? props.expenseCategories : props.incomeCategories;
       var categoryIds = []
@@ -105,37 +85,20 @@ function BarChart(props) {
     }
   }
 
-  function handleClick(button, buttonNum){
-    if(button == "expenseIncome"){
-      setExpenseIncomeButton(buttonNum); 
-    }else if(button == "totalCategory"){
-      setTotalCategoryButton(buttonNum); 
-    }
-    props.setBarKey(props.barKey + 1)
-  }
-
   return (
-    <Grid container spacing={1}>
-      <Grid item xs={6}>
-        <br/><br/>
-        <h5 style={{float:'right'}}>{titles[expenseIncomeButton][totalCategoryButton]}</h5>
-      </Grid>
-      <Grid item xs={3}></Grid>
-      <Grid item xs={3}>
-        <ButtonGroup size="sm" style={{float:'right', marginBottom:2}}>
-          <Button variant="success" active={expenseIncomeButton == 0 ? true : false} onClick={() => handleClick("expenseIncome", 0)}>Expenses</Button>
-          <Button variant="success" active={expenseIncomeButton == 1 ? true : false} onClick={() => handleClick("expenseIncome", 1)}>Income</Button>
-        </ButtonGroup>
-        <br/>
-        <ButtonGroup size="sm" style={{float:'right'}}>
-          <Button variant="success" active={totalCategoryButton == 0 ? true : false} onClick={() => handleClick("totalCategory", 0)}>Total</Button>
-          <Button variant="success" active={totalCategoryButton == 1 ? true : false} onClick={() => handleClick("totalCategory", 1)}>By Category</Button>
-        </ButtonGroup>
-      </Grid>
-      <Grid item xs={12}>
         <div>
+          <BarButtons
+            expenseIncomeButton = {expenseIncomeButton}
+            setExpenseIncomeButton = {setExpenseIncomeButton}
+            totalCategoryButton = {totalCategoryButton}
+            setTotalCategoryButton = {setTotalCategoryButton}
+            dateButton = {dateButton}
+            setDateButton = {setDateButton}
+            setBarKey = {props.setBarKey}
+          />
+
           <Bar 
-            height = {355}
+            height = {200}
             key = {props.barKey}
             data={getBarChartData}
             options={{
@@ -166,10 +129,7 @@ function BarChart(props) {
             }
             }}
           />
-        </div>
-        
-      </Grid>
-    </Grid>        
+        </div>  
   );
 }
 
