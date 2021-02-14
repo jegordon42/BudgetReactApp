@@ -64,6 +64,8 @@ export default function SignUp(props) {
           props.setIncomeCategories(result['incomeCategories']);
           props.setExpenseTransactions([])
           props.setIncomeTransactions([])
+          props.setFilteredTransactions([], "Expense")
+          props.setFilteredTransactions([], "Income")
           props.setPage("dashboard")
         }
       })

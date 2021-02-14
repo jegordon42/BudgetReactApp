@@ -34,28 +34,32 @@ function Dashboard(props) {
     <div className={classes.root}>
       <Grid container spacing={2}>
         <Grid item xs={7}>
-          <Paper className={classes.paper} style={{height:'500'}}>
+          <Paper className={classes.paper} style={{height:610}}>
             <BarChart
-              barKey = {barKey}
-              setBarKey = {setBarKey}
+              barKey = {barKey} setBarKey = {setBarKey}
               expenseCategories = {props.expenseCategories}
               incomeCategories = {props.incomeCategories}
               expenseTransactions = {props.expenseTransactions}
               incomeTransactions = {props.incomeTransactions}
+              filteredIncomeTransactions = {props.filteredIncomeTransactions}
+              filteredExpenseTransactions = {props.filteredExpenseTransactions}
+              setFilteredTransactions = {props.setFilteredTransactions}
+              startDate = {props.startDate} endDate = {props.endDate} setFilters = {props.setFilters}
             />
           </Paper>
         </Grid>
         <Grid item xs={5}>
           <Paper className={classes.paper}>
             <Metrics 
-              expenseTransactions = {props.expenseTransactions}
-              incomeTransactions = {props.incomeTransactions}
+              expenseTransactions = {props.filteredExpenseTransactions}
+              incomeTransactions = {props.filteredIncomeTransactions}
               expenseCategories = {props.expenseCategories}
               incomeCategories = {props.incomeCategories}
+              startDate = {props.startDate} endDate = {props.endDate}
             />
           </Paper>
           <br/>
-          <Paper className={classes.paper} style={{display:'flex', flexDirection:'column', minHeight:'200' }}> 
+          <Paper className={classes.paper} style={{display:'flex', flexDirection:'column', height:365 }}> 
             <PieButtons
               pieKey = {pieKey}
               setPieKey = {setPieKey}
@@ -71,8 +75,9 @@ function Dashboard(props) {
                 pieActualPlannedButton = {pieActualPlannedButton}
                 incomeCategories = {props.incomeCategories}
                 expenseCategories = {props.expenseCategories}
-                expenseTransactions = {props.expenseTransactions}
-                incomeTransactions = {props.incomeTransactions}
+                expenseTransactions = {props.filteredExpenseTransactions}
+                incomeTransactions = {props.filteredIncomeTransactions}
+                startDate = {props.startDate} endDate = {props.endDate}
               />
           )}
           {pieActualPlannedButton === 2 && (
@@ -80,8 +85,9 @@ function Dashboard(props) {
               pieIncomeExpenseButton = {pieIncomeExpenseButton}
               incomeCategories = {props.incomeCategories}
               expenseCategories = {props.expenseCategories}
-              expenseTransactions = {props.expenseTransactions}
-              incomeTransactions = {props.incomeTransactions}
+              expenseTransactions = {props.filteredExpenseTransactions}
+              incomeTransactions = {props.filteredIncomeTransactions}
+              startDate = {props.startDate} endDate = {props.endDate}
             />
           )}
           </Paper>
@@ -91,10 +97,11 @@ function Dashboard(props) {
             <Transactions 
               user = {props.user}
               gridKey = {gridKey}
-              expenseTransactions = {props.expenseTransactions}
-              setExpenseTransactions = {props.setExpenseTransactions}
-              incomeTransactions = {props.incomeTransactions}
-              setIncomeTransactions = {props.setIncomeTransactions}
+              expenseTransactions = {props.expenseTransactions} setExpenseTransactions = {props.setExpenseTransactions}
+              incomeTransactions = {props.incomeTransactions} setIncomeTransactions = {props.setIncomeTransactions}
+              filteredExpenseTransactions = {props.filteredExpenseTransactions}
+              filteredIncomeTransactions = {props.filteredIncomeTransactions}
+              setFilteredTransactions = {props.setFilteredTransactions}
               expenseCategories = {props.expenseCategories}
               incomeCategories = {props.incomeCategories}
             />
@@ -106,10 +113,8 @@ function Dashboard(props) {
         user={props.user}
         incomeTransactions={props.incomeTransactions}
         expenseTransactions={props.expenseTransactions}
-        expenseCategories={props.expenseCategories} 
-        setExpenseCategories = {props.setExpenseCategories}
-        incomeCategories = {props.incomeCategories}
-        setIncomeCategories = {props.setIncomeCategories}
+        expenseCategories={props.expenseCategories} setExpenseCategories = {props.setExpenseCategories}
+        incomeCategories = {props.incomeCategories} setIncomeCategories = {props.setIncomeCategories}
         handleClose={() => {props.setShowSettings(false); setGridKey(gridKey + 1)}}
       />
     </div>
