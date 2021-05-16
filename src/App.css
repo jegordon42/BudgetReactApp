@@ -36,3 +36,8 @@
     transform: rotate(360deg);
   }
 }
+
+.modalStyle {
+  width: 80vw;
+  max-width: 80vw;
+} 

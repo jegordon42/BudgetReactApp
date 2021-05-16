@@ -19,14 +19,46 @@ function TransactionsGrid(props) {
     params.api.sizeColumnsToFit(); 
   }
 
-  function saveTransactions(transactions){
-    fetch('/UpdateTransactions', {
+  function addFilteredOutTransactions(transactions){
+    var transactionIds = []
+    for(var i = 0; i < transactions; i++){
+      transactionIds.push(transactions[i].TransactionId)
+    }
+    for(var i = 0; i < props.transactions; i++){
+      if(!transactionIds.includes(props.transactions[i].TransactionId))
+        transactions.push(props.transactions[i])
+    }
+  }
+
+  function onCellValueChanged(event){
+    fetch('/UpdateTransaction', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
-            userId : props.user['userId'],
-            transactionType : props.TransactionType.replace('es', 'e'),
-            transactions : transactions
+            transaction : event.data
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+      var transactions = props.filteredTransactions;
+      transactions[event.rowIndex] = event.data;
+      addFilteredOutTransactions(transactions)
+      props.setTransactions(transactions)
+      props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
+    })
+    .catch(e => {
+        console.log(e);
+    });
+  }
+
+  function addTransaction(){
+    fetch('/AddTransactions', {
+        method : "POST",
+        headers : {"Content-type" : "application/json"},
+        body: JSON.stringify({
+          userId : props.user['userId'],
+          transactionType : props.TransactionType.replace('es', 'e'),
+          transactionsToAdd : [{TransactionId: 0, CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : (new Date()).toLocaleDateString()}]
         })
     })
     .then(response => response.json())
@@ -45,21 +77,28 @@ function TransactionsGrid(props) {
     });
   }
 
-  function addTransaction(){
-      var today = new Date();
-      today.setDate(today.getDate())
-      var transactions = [{TransactionId: 0, CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : today.toLocaleDateString()}].concat(props.transactions)
-      saveTransactions(transactions);
-  }
-
   function deleteTransactions(){
-    var transactions = [];
-    for(var i = 0; i < props.transactions.length; i++){
-        var transaction = props.transactions[i];
-        if(!selectedTransactions.includes(transaction.TransactionId))
-          transactions.push(transaction);
-    }
-    saveTransactions(transactions);
+    fetch('/DeleteTransactions', {
+        method : "POST",
+        headers : {"Content-type" : "application/json"},
+        body: JSON.stringify({
+          transactionIdsToDelete : selectedTransactions
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+      var transactions = [];
+      for(var i = 0; i < props.transactions.length; i++){
+          var transaction = props.transactions[i];
+          if(!selectedTransactions.includes(transaction.TransactionId))
+            transactions.push(transaction);
+      }
+      props.setTransactions(transactions)
+      props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
+    })
+    .catch(e => {
+        console.log(e);
+    });
 }
 
   function CategoryCellRenderer(params){
@@ -105,24 +144,6 @@ function TransactionsGrid(props) {
             />
   }
 
-  function addFilteredOutTransactions(transactions){
-    var transactionIds = []
-    for(var i = 0; i < transactions; i++){
-      transactionIds.push(transactions[i].TransactionId)
-    }
-    for(var i = 0; i < props.transactions; i++){
-      if(!transactionIds.includes(props.transactions[i].TransactionId))
-        transactions.push(props.transactions[i])
-    }
-  }
-
-  function onCellValueChanged(event){
-    var transactions = props.filteredTransactions;
-    transactions[event.rowIndex] = event.data;
-    addFilteredOutTransactions(transactions)
-    saveTransactions(transactions);
-  }
-
   return (
     <Grid container spacing={0}>
       <Grid item xs={7}>
@@ -148,7 +169,7 @@ function TransactionsGrid(props) {
                 <AgGridColumn headerName="Date" field="Date" width={130} editable resizable cellRendererFramework={DateCellRenderer} filter='agDateColumnFilter'></AgGridColumn>
               </AgGridReact>
           </div>
-          <ImportTransaction show={showImport} TransactionType={props.TransactionType} handleClose={() => {setShowImport(false)}} />
+          <ImportTransaction show={showImport} user={props.user} setTransactions={props.setTransactions} setFilteredTransactions={props.setFilteredTransactions} TransactionType={props.TransactionType} categories={props.categories} setShowImport={setShowImport} />
       </Grid>
     </Grid> 
   );

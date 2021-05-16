@@ -53,11 +53,13 @@ export default function SignUp(props) {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [message, setMessage] = useState("")
 
   function handleSignUp(){
     fetch('/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
       .then(response => response.json())
       .then(result => {
+        console.log(result['message'])
         if(result['message'] == 'Success'){
           props.setUser(result['user']);
           props.setExpenseCategories(result['expenseCategories']);
@@ -67,6 +69,10 @@ export default function SignUp(props) {
           props.setFilteredTransactions([], "Expense")
           props.setFilteredTransactions([], "Income")
           props.setPage("dashboard")
+        }
+        else{
+          console.log(result['message'])
+          setMessage(result['message'])
         }
       })
       .catch(e => {
@@ -137,6 +143,7 @@ export default function SignUp(props) {
               />
             </Grid>
           </Grid>
+          {message}
           <Button
             fullWidth
             variant="contained"
