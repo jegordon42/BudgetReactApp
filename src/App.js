@@ -5,6 +5,7 @@ import Header from './Components/Header'
 import Login from './Components/Login';
 import SignUp from './Components/SignUp';
 import Dashboard from './Components/Dashboard';
+import Error from './Components/Error'
 
 function App() {
   const [currentPage, setCurrentPage] = useState("login")
@@ -16,12 +17,14 @@ function App() {
   const [filteredExpenseTransactions, setFilteredExpenseTransactions] = useState([])
   const [filteredIncomeTransactions, setFilteredIncomeTransactions] = useState([])
   const [showSettings, setShowSettings] = useState(false)
+  const [showError, setShowError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
   const [startDate, setStartDate] = useState(new Date((new Date()).getFullYear(), (new Date()).getMonth(), 1))
   const [endDate, setEndDate] = useState(new Date((new Date()).getFullYear(), (new Date()).getMonth() + 1, 0))
 
   function setFilters(newStartDate, newEndDate){
     var expenseTrans = []
-    for(var i = 0; i < expenseTransactions.length; i++){
+        for(var i = 0; i < expenseTransactions.length; i++){
       var transaction = expenseTransactions[i];
       var transDate = new Date(transaction['Date'])
       if(newStartDate <= transDate && newEndDate >= transDate)
@@ -100,9 +103,15 @@ function App() {
           incomeTransactions = {incomeTransactions} setIncomeTransactions = {setIncomeTransactions}
           startDate = {startDate} endDate = {endDate} setFilters={setFilters}
           showSettings = {showSettings} setShowSettings = {setShowSettings}
+          setShowError = {setShowError} setErrorMessage = {setErrorMessage}
           setPage = {setCurrentPage}
         />
       }
+      <Error
+        show = {showError}
+        message = {errorMessage}
+        handleClose={() => {setShowError(false)}}
+      />
     </div>
   );
 }

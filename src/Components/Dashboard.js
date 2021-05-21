@@ -29,7 +29,7 @@ function Dashboard(props) {
   const [gridKey, setGridKey] = useState(1)
   const [pieIncomeExpenseButton, setPieIncomeExpenseButton] = useState(0)
   const [pieActualPlannedButton, setPieActualPlannedButton] = useState(props.expenseTransactions.length == 0 ? 1 : 0)
-
+  
   return (
     <div className={classes.root}>
       <Grid container spacing={2}>
@@ -102,6 +102,7 @@ function Dashboard(props) {
               filteredExpenseTransactions = {props.filteredExpenseTransactions}
               filteredIncomeTransactions = {props.filteredIncomeTransactions}
               setFilteredTransactions = {props.setFilteredTransactions}
+              setShowError = {props.setShowError} setErrorMessage={props.setErrorMessage}
               expenseCategories = {props.expenseCategories}
               incomeCategories = {props.incomeCategories}
             />
@@ -117,6 +118,7 @@ function Dashboard(props) {
         incomeCategories = {props.incomeCategories} setIncomeCategories = {props.setIncomeCategories}
         handleClose={() => {props.setShowSettings(false); setGridKey(gridKey + 1)}}
       />
+
     </div>
   );
 }

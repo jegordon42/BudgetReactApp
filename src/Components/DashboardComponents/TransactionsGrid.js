@@ -52,6 +52,11 @@ function TransactionsGrid(props) {
   }
 
   function addTransaction(){
+    if(props.categories.length ==0){
+      props.setShowError(true);
+      props.setErrorMessage("Please add some categories before adding a transaction.")
+      return;
+    }
     fetch('/AddTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
@@ -78,6 +83,11 @@ function TransactionsGrid(props) {
   }
 
   function deleteTransactions(){
+    if(selectedTransactions.length ==0){
+      props.setShowError(true);
+      props.setErrorMessage("Please select a transaction to be deleted.")
+      return;
+    }
     fetch('/DeleteTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
@@ -144,6 +154,14 @@ function TransactionsGrid(props) {
             />
   }
 
+  function handleImportClick(){
+    if(props.categories.length ==0){
+      props.setShowError(true);
+      props.setErrorMessage("Please add some categories before attempting to import.")
+      return;
+    }
+  }
+
   return (
     <Grid container spacing={0}>
       <Grid item xs={7}>
@@ -151,7 +169,7 @@ function TransactionsGrid(props) {
       </Grid>
       <Grid item xs={5}>
           <Button variant="danger" size="sm" style={{float:'right'}} onClick={deleteTransactions}>Delete</Button>
-          <Button variant="primary" size="sm" style={{float:'right', marginRight:5}} onClick={() => {setShowImport(true)}}>Import</Button>
+          <Button variant="primary" size="sm" style={{float:'right', marginRight:5}} onClick={handleImportClick}>Import</Button>
           <Button variant="primary" size="sm" style={{float:'right', marginRight:5}} onClick={addTransaction}>Add</Button>
       </Grid>
       <Grid item xs={12}>
@@ -169,7 +187,14 @@ function TransactionsGrid(props) {
                 <AgGridColumn headerName="Date" field="Date" width={130} editable resizable cellRendererFramework={DateCellRenderer} filter='agDateColumnFilter'></AgGridColumn>
               </AgGridReact>
           </div>
-          <ImportTransaction show={showImport} user={props.user} setTransactions={props.setTransactions} setFilteredTransactions={props.setFilteredTransactions} TransactionType={props.TransactionType} categories={props.categories} setShowImport={setShowImport} />
+          <ImportTransaction 
+          show={showImport} setShowImport={setShowImport} 
+          user={props.user} 
+          setTransactions={props.setTransactions} 
+          setFilteredTransactions={props.setFilteredTransactions} 
+          TransactionType={props.TransactionType} 
+          categories={props.categories} 
+          />
       </Grid>
     </Grid> 
   );

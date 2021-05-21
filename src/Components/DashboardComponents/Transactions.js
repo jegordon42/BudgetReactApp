@@ -34,6 +34,7 @@ function Transactions(props) {
             setTransactions = {props.setExpenseTransactions}
             filteredTransactions = {props.filteredExpenseTransactions}
             setFilteredTransactions = {props.setFilteredTransactions}
+            setShowError = {props.setShowError} setErrorMessage={props.setErrorMessage}
             categories = {props.expenseCategories}
           />
         </Paper>
@@ -46,6 +47,7 @@ function Transactions(props) {
             TransactionType = "Income"
             transactions = {props.incomeTransactions} setTransactions = {props.setIncomeTransactions}
             filteredTransactions = {props.filteredIncomeTransactions} setFilteredTransactions = {props.setFilteredTransactions}
+            setShowError = {props.setShowError} setErrorMessage={props.setErrorMessage}
             categories = {props.incomeCategories}
           />
         </Paper>
