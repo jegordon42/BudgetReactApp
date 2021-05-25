@@ -28,7 +28,7 @@ function Dashboard(props) {
   const [barKey, setBarKey] = useState(1)
   const [gridKey, setGridKey] = useState(1)
   const [pieIncomeExpenseButton, setPieIncomeExpenseButton] = useState(0)
-  const [pieActualPlannedButton, setPieActualPlannedButton] = useState(props.expenseTransactions.length == 0 ? 1 : 0)
+  const [pieActualPlannedButton, setPieActualPlannedButton] = useState(props.expenseTransactions.length === 0 ? 1 : 0)
   
   return (
     <div className={classes.root}>
@@ -68,7 +68,7 @@ function Dashboard(props) {
               pieActualPlannedButton = {pieActualPlannedButton}
               setPieActualPlannedButton = {setPieActualPlannedButton}
             />
-           {pieActualPlannedButton != 2 && (
+           {pieActualPlannedButton !== 2 && (
               <PieChart
                 pieKey = {pieKey}
                 pieIncomeExpenseButton = {pieIncomeExpenseButton}

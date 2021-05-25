@@ -23,17 +23,19 @@ function App() {
   const [endDate, setEndDate] = useState(new Date((new Date()).getFullYear(), (new Date()).getMonth() + 1, 0))
 
   function setFilters(newStartDate, newEndDate){
-    var expenseTrans = []
-        for(var i = 0; i < expenseTransactions.length; i++){
-      var transaction = expenseTransactions[i];
-      var transDate = new Date(transaction['Date'])
+    var expenseTrans = [];
+    var transaction;
+    var transDate;
+    for(var i = 0; i < expenseTransactions.length; i++){
+      transaction = expenseTransactions[i];
+      transDate = new Date(transaction['Date'])
       if(newStartDate <= transDate && newEndDate >= transDate)
       expenseTrans.push(transaction)
     }
     var incomeTrans = []
-    for(var i = 0; i < incomeTransactions.length; i++){
-      var transaction = incomeTransactions[i];
-      var transDate = new Date(transaction['Date'])
+    for(i = 0; i < incomeTransactions.length; i++){
+      transaction = incomeTransactions[i];
+      transDate = new Date(transaction['Date'])
       if(newStartDate <= transDate && newEndDate >= transDate)
         incomeTrans.push(transaction)
     }
@@ -52,7 +54,7 @@ function App() {
       if(startDate <= transDate && endDate >= transDate)
         trans.push(transaction)
     }
-    if(transType == "Expense")
+    if(transType === "Expense")
       setFilteredExpenseTransactions(trans)
     else
       setFilteredIncomeTransactions(trans)

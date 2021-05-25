@@ -55,30 +55,50 @@ export default function SignUp(props) {
   const [password, setPassword] = useState("")
   const [message, setMessage] = useState("")
 
-  function handleSignUp(){
-    fetch('/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
-      .then(response => response.json())
-      .then(result => {
-        console.log(result['message'])
-        if(result['message'] == 'Success'){
-          props.setUser(result['user']);
-          props.setExpenseCategories(result['expenseCategories']);
-          props.setIncomeCategories(result['incomeCategories']);
-          props.setExpenseTransactions([])
-          props.setIncomeTransactions([])
-          props.setFilteredTransactions([], "Expense")
-          props.setFilteredTransactions([], "Income")
-          props.setPage("dashboard")
-        }
-        else{
-          console.log(result['message'])
-          setMessage(result['message'])
-        }
-      })
-      .catch(e => {
-          console.log(e);
-      });
+  function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
+  function isValid(){
+      if(firstName === "" || lastName === ""){
+      setMessage("Please Fill in Name Values");
+      return false;
+    }
+    if (!validateEmail(email)){
+      setMessage("Please Enter a Valid Email Address");
+      return false;
+    }
+    return true;
   }
+
+  function handleSignUp(){
+    setMessage("");
+    if(!isValid()){
+      return;
+    }
+    fetch('/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
+    .then(response => response.json())
+    .then(result => {
+      if(result['message'] === 'Success'){
+        props.setUser(result['user']);
+        props.setExpenseCategories(result['expenseCategories']);
+        props.setIncomeCategories(result['incomeCategories']);
+        props.setExpenseTransactions([])
+        props.setIncomeTransactions([])
+        props.setFilteredTransactions([], "Expense")
+        props.setFilteredTransactions([], "Income")
+        props.setPage("dashboard")
+      }
+      else{
+        setMessage(result['message'])
+      }
+    })
+    .catch(e => {
+      console.log(e);
+    });
+    
+}
 
   return (
     <Container component="main" maxWidth="xs">
@@ -143,7 +163,7 @@ export default function SignUp(props) {
               />
             </Grid>
           </Grid>
-          {message}
+          <h6 style={{color:"red"}}>{message}</h6>
           <Button
             fullWidth
             variant="contained"
