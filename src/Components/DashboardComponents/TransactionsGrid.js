@@ -63,7 +63,7 @@ function TransactionsGrid(props) {
         body: JSON.stringify({
           userId : props.user['userId'],
           transactionType : props.TransactionType.replace('es', 'e'),
-          transactionsToAdd : [{TransactionId: 0, CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : (new Date()).toLocaleDateString()}]
+          transactionsToAdd : [{CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : (new Date()).toLocaleDateString()}]
         })
     })
     .then(response => response.json())

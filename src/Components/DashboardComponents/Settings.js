@@ -17,31 +17,57 @@ function Settings(props) {
     }
 
     function addCategory(){
-        var categoriesToUpdate = selectedTab==="Expense" ? props.expenseCategories : props.incomeCategories;
-        var categories = categoriesToUpdate.concat([{CategoryId: 0, CategoryName: "", Planned: 0}]);
-        saveCategories(categories, selectedTab)
-    }
+        fetch('/AddCategories', {
+            method : "POST",
+            headers : {"Content-type" : "application/json"},
+            body: JSON.stringify({
+              userId : props.user['userId'],
+              categoryType : selectedTab,
+              categoriesToAdd : [{CategoryName: "", PlannedSpending : 0}]
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+          var categories = result['categories'];
+          if(selectedTab === 'Expense'){
+            props.setExpenseCategories(categories)
+          }
+          else if(selectedTab === 'Income'){
+            props.setIncomeCategories(categories)
+          }
+        })
+        .catch(e => {
+            console.log(e);
+        });
+      }
 
     function deleteCategory(){
-        var categories = [];
-        var categoriesToUpdate = selectedTab==="Expense" ? props.expenseCategories : props.incomeCategories;
-        for(var i = 0; i < categoriesToUpdate.length; i++){
-            var category = categoriesToUpdate[i];
-            if(!selectedCategories.includes(category.CategoryId))
-                categories.push(category);
-            else{
-                var transactions = selectedTab==="Expense" ? props.expenseTransactions : props.incomeTransactions;
-                for(var x = 0; x < transactions.length; x++){
-                    if(transactions[x].CategoryId === category.CategoryId){
-                        alert('One of the selected Categories to be deleted is used in one or more transactions. Please make sure to change existing transactions to not include this category. In an upcoming update, you will be able to select a different category from here to switch the transactions to.')
-                        return;
-                    }
-                }
-            } 
-
-
-        }
-        saveCategories(categories, selectedTab);
+        fetch('/DeleteCategories', {
+            method : "POST",
+            headers : {"Content-type" : "application/json"},
+            body: JSON.stringify({
+                categoryIdsToDelete : selectedCategories
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            var categories = [];
+            var oldCategories = selectedTab === 'Expense' ? props.expenseCategories : props.incomeCategories
+            for(var i = 0; i < oldCategories.length; i++){
+                var category = oldCategories[i];
+                if(!selectedCategories.includes(category.CategoryId))
+                    categories.push(category);
+            }
+            if(selectedTab === 'Expense'){
+                props.setExpenseCategories(categories)
+            }
+            else if(selectedTab === 'Income'){
+                props.setIncomeCategories(categories)
+            }
+        })
+        .catch(e => {
+            console.log(e);
+        });
     }
 
     function CheckBoxCellRenderer(params){
@@ -64,33 +90,29 @@ function Settings(props) {
     }
 
     function onCellValueChanged(event){
-        var categoriesToUpdate = selectedTab==="Expense" ? props.expenseCategories : props.incomeCategories;
-        categoriesToUpdate[event.rowIndex] = event.data
-        saveCategories(categoriesToUpdate, selectedTab);
-    }
-
-    function saveCategories(categories, categoryType){
-        fetch('/UpdateCategories', {
+        fetch('/UpdateCategory', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
-                userId : props.user['userId'],
-                categoryType : categoryType,
-                categories : categories
+                category : event.data
             })
         })
         .then(response => response.json())
         .then(result => {
-            if(categoryType === "Expense"){
-                props.setExpenseCategories(result['categories'])
-            }else{
-                props.setIncomeCategories(result['categories'])
-            }
+          var categories = selectedTab === 'Expense' ? props.expenseCategories : props.incomeCategories;
+          categories[event.rowIndex] = event.data;
+          if(selectedTab === 'Expense'){
+            props.setExpenseCategories(categories)
+          }
+          else if(selectedTab === 'Income'){
+            props.setIncomeCategories(categories)
+          }
         })
         .catch(e => {
             console.log(e);
         });
-    }
+      }
+
 
     return (
     <Modal show={props.show} onHide={handleClose}>
@@ -109,7 +131,7 @@ function Settings(props) {
                     <Nav.Link eventKey="link-3">Profile</Nav.Link>
                 </Nav.Item>
             </Nav>
-            {(selectedTab==="Expense" || selectedTab==="Income") && (
+            {(selectedTab ==="Expense" || selectedTab === "Income") && (
                 <div>
                     <Grid container spacing={0}>
                         <Grid item xs={6}>
@@ -122,7 +144,7 @@ function Settings(props) {
                         <Grid item xs={12}>
                             <div className="ag-theme-alpine" style={{ height: '100%', width: '100%' } }>
                                 <AgGridReact
-                                    rowData={selectedTab==="Expense" ? props.expenseCategories : props.incomeCategories}
+                                    rowData={selectedTab === "Expense" ? props.expenseCategories : props.incomeCategories}
                                     domLayout="autoHeight"
                                     onCellValueChanged={onCellValueChanged}
                                     onGridReady={onGridReady}
