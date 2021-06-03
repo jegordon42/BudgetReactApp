@@ -1,7 +1,15 @@
 import React, {useState} from 'react';
 import {Pie} from 'react-chartjs-2';
+import * as constants from '../../constants'
 
 function PieChart(props) {
+
+  function filteredDateRangeAdjustment(){
+    var numDaysInFilteredRange = Math.ceil((Math.abs(props.endDate - props.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+    if([28, 29, 30, 31].includes(numDaysInFilteredRange)) 
+      return 1;
+    return numDaysInFilteredRange / (365 / 12) //Average month length
+  }
 
   function getPieChartData(){
     var pieLabels = [];
@@ -12,7 +20,7 @@ function PieChart(props) {
     for(var i = 0; i < categories.length; i++){
       pieLabels.push(categories[i].CategoryName)
       if(props.pieActualPlannedButton == 1){
-        pieData.push(categories[i].Planned)
+        pieData.push(categories[i].Planned * filteredDateRangeAdjustment())
       }else if(props.pieActualPlannedButton == 0){
         pieData.push(0)
         for(var x = 0; x < transactions.length; x++){
@@ -28,19 +36,7 @@ function PieChart(props) {
       datasets: [
         {
           label: 'Categories',
-          backgroundColor: [
-            '#FFADAD',
-            '#FFD6A5',
-            '#FDFFB6',
-            '#CAFFBF',
-            '#9BF6FF',
-            '#A0C4FF',
-            '#BDB2FF',
-            '#FFC6FF',
-            '#F72585',
-            '#7209B7',
-            '#4361EE'
-          ],
+          backgroundColor: constants.colors,
           data: pieData
         }
       ]
@@ -60,7 +56,7 @@ function PieChart(props) {
         { (!((props.pieIncomeExpenseButton == 0 && props.pieActualPlannedButton == 0 && props.expenseTransactions.length == 0) ||
           (props.pieIncomeExpenseButton == 1 && props.pieActualPlannedButton == 0 && props.incomeTransactions.length == 0))) && 
           <Pie
-            height = {235}
+            height = {270}
             data={getPieChartData()}
             options={{
               animation:{duration:1000, easing:'easeInOutCubic'},
@@ -75,7 +71,7 @@ function PieChart(props) {
                         var label = data.labels[tooltipItem.index]
                         var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 
-                        label += ': $' + value;
+                        label += ': $' + Number(value).toFixed(2);
                         return label;
                     }
                 }

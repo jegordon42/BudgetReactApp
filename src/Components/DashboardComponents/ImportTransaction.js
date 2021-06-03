@@ -1,42 +1,87 @@
 import React, {useState} from 'react'
-import { Modal, Nav, Button } from 'react-bootstrap'
+import '../../App.css'
+import { Modal, Nav, Button, Form } from 'react-bootstrap'
 import Grid from '@material-ui/core/Grid';
 import readXlsxFile from 'read-excel-file'
 import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import DeleteIcon from '@material-ui/icons/Delete';
+const papa = require('papaparse');
 
 function ImportTransaction(props) {
     const [rows, setRows] = useState(null)
     const [gridApi, setGridApi] = useState(null);
     const [gridColumnApi, setGridColumnApi] = useState(null);
+    const [importTransactions, setImportTransactions] = useState(null)
+    const [gridKey, setGridKey] = useState(0)
 
     function onGridReady(params) {
         setGridApi(params.api);
         setGridColumnApi(params.columnApi);
+        params.api.sizeColumnsToFit()
     }
     
-    function readFile(){
-        console.log(props.user)
-        return;
-        var input = document.getElementById('input')
-    
-        readXlsxFile(input.files[0]).then((rows) => {
-          console.log(rows)
-        })
+    function CategoryCellRenderer(params){
+        return <Form.Control as="select" defaultValue={params.value} style={{width:'100%'}} onChange={(event)=>{params.setValue(event.target.value)}}>
+                {props.categories.map((category) => 
+                  <option key={category.CategoryId} value={category.CategoryId}>{category.CategoryName}</option>
+                )}
+              </Form.Control>
+    }
+
+    function DeleteCellRenderer(params){
+        return <Button variant="danger" size="sm" onClick={()=>{var trans = importTransactions; trans.splice(params.rowIndex, 1); setImportTransactions(trans); setGridKey(gridKey + 1)}}><DeleteIcon/></Button>
+    }
+
+    function onCellValueChanged(event){
+        var transactions = importTransactions;
+        transactions[event.rowIndex] = event.data;
+        setImportTransactions(transactions)
       }
 
+    function readFile(){
+        var fileToImport = document.getElementById('fileToImport')
+        var importTrans = []
+        papa.parse(fileToImport.files[0], {
+            step: function(result) {
+                if(isNaN(result.data[6]) == false && result.data[6] > 0){
+                    var importResult = {TransactionId: 0, CategoryId: props.categories[0]['CategoryId'], CategoryName: result.data[4], Description: result.data[2], Amount : Number(result.data[6]), Date : result.data[0]}
+                    importTrans.push(importResult)
+                }
+            },
+            complete: function(results, file) {
+                setImportTransactions(importTrans)
+            }
+        });
+      }
+
+    function handleClose(){
+        setImportTransactions(null);
+        props.setShowImport(false);
+    }
+    
     function handleImport(){
-        fetch('https://budgetflaskapp.azurewebsites.net/UpdateSettings', {
+        fetch('/AddTransactions', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
-                userId : 123
+              userId : props.user['userId'],
+              transactionType : props.TransactionType.replace('es', 'e'),
+              transactionsToAdd : importTransactions
             })
         })
         .then(response => response.json())
         .then(result => {
-            props.   handleClose()
+          var transactions = result['transactions'];
+          for(var i = 0; i < transactions.length; i++){
+            var date = new Date(transactions[i]['Date']);
+            date.setDate(date.getDate() + 1)
+            transactions[i]['Date'] = date.toLocaleDateString()
+          }
+          props.setTransactions(transactions)
+          props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
+          handleClose()
         })
         .catch(e => {
             console.log(e);
@@ -44,26 +89,31 @@ function ImportTransaction(props) {
     }
     
     return (
-    <Modal show={props.show} onHide={props.handleClose}>
+    <Modal show={props.show} onHide={handleClose} dialogClassName="modalStyle">
         <Modal.Header>
             <Modal.Title>Import {props.TransactionType}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
              <Grid container spacing={0}>
                 <Grid item xs={12}>
-                    <input type="file" />
+                    <input id="fileToImport" type="file" onChange={readFile} style={{width:600, marginBottom:10}}/>
                 </Grid>
                 <Grid item xs={12}>
-                    {rows && (
-                        <div className="ag-theme-alpine" style={{ height: '100%', width: '100%' } }>
+                    {importTransactions && (
+                        <div className="ag-theme-alpine" style={{ height: '100%', width:'100%' } }>
                             <AgGridReact
                                 domLayout="autoHeight"
+                                rowData = {importTransactions}
+                                onCellValueChanged = {onCellValueChanged}
+                                onGridReady = {onGridReady}
+                                key = {gridKey}
                             >
-                                <AgGridColumn headerName="" field="TransactionId" width={50} ></AgGridColumn>
-                                <AgGridColumn headerName="Category" field="CategoryName" width={125} editable></AgGridColumn>
-                                <AgGridColumn headerName="Description" field="Description" width={250} editable></AgGridColumn>
+                                <AgGridColumn headerName="Original Category" field="CategoryName" width={160}></AgGridColumn>
+                                <AgGridColumn headerName="Category" field="CategoryId" width={160} editable resizable cellRendererFramework={CategoryCellRenderer} ></AgGridColumn>
+                                <AgGridColumn headerName="Description" field="Description" minWidth={400} maxWidth={800} editable resizable></AgGridColumn>
                                 <AgGridColumn headerName="Amount" field="Amount" width={125} editable></AgGridColumn>
                                 <AgGridColumn headerName="Date" field="Date" width={125} editable></AgGridColumn>
+                                <AgGridColumn headerName="Delete" field="TransactionId" width={100} cellRendererFramework={DeleteCellRenderer}></AgGridColumn>
                             </AgGridReact>
                         </div>
                     )}
@@ -73,7 +123,7 @@ function ImportTransaction(props) {
         </Modal.Body>
         <Modal.Footer>
             <Button variant="primary" onClick={handleImport}>Import</Button>
-            <Button variant="secondary" onClick={props.handleClose}>Close</Button>
+            <Button variant="secondary" onClick={handleClose}>Close</Button>
         </Modal.Footer>
     </Modal>
   );

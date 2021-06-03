@@ -1,141 +1,268 @@
 import React, {useState} from 'react';
 import {Bar} from 'react-chartjs-2';
-import {ButtonGroup, Button} from 'react-bootstrap';
-import Grid from '@material-ui/core/Grid';
+import BarButtons from './BarButtons'
+import * as constants from '../../constants'
 
 function BarChart(props) {
   const [expenseIncomeButton, setExpenseIncomeButton] = useState(0)
   const [totalCategoryButton, setTotalCategoryButton] = useState(0)
-  const titles = [['Total Expenses', 'Expenses By Category'],['Total Income', 'Income By Category']]
-  const colors = [
-    '#FFADAD',
-    '#FFD6A5',
-    '#FDFFB6',
-    '#CAFFBF',
-    '#9BF6FF',
-    '#A0C4FF',
-    '#BDB2FF',
-    '#FFC6FF',
-    '#F72585',
-    '#7209B7',
-    '#4361EE'
-  ];
+  const [dateButton, setDateButton] = useState(1)
 
-  function getBarChartData(){
-    var transactions = expenseIncomeButton == 0 ? props.expenseTransactions : props.incomeTransactions;
-    
-    if(transactions.length == 0)
-      return {};
-
-    var firstDate = new Date(transactions[0]['Date'])
-    var lastDate = new Date(transactions[0]['Date'])
-    for(var i = 0; i < transactions.length; i++){
-      var curDate = new Date(transactions[i]['Date'])
-      if(curDate < firstDate){
-        firstDate = curDate;
-      }
-      if(curDate > lastDate){
-        lastDate = curDate;
-      }
-    }
+  function getBarChartDataByDay(startDate, endDate, transactions){
     var labels = []
     var actualData = []
-    var plannedData = []
     var datasets = []
     if(totalCategoryButton == 0){
-      for(var curDate = firstDate; curDate <= lastDate; curDate.setDate(curDate.getDate() + 1)){
+      for(var curDate = startDate; curDate <= endDate; curDate.setDate(curDate.getDate() + 1)){
         labels.push(curDate.toLocaleDateString())
         actualData.push(0)
-        plannedData.push(200)
       }
       for(var i = 0; i < transactions.length; i++){
         var curDate = transactions[i]['Date']
         var index = labels.indexOf(curDate)
-        actualData[index] += transactions[i]['Amount']
+        if(index != -1)
+          actualData[index] += transactions[i]['Amount']
       }
       datasets.push({
         label: 'Total Spending',
         data: actualData,
         stack: '1',
-        backgroundColor: '#CAFFBF',
+        backgroundColor: '#28a744',
         borderWidth:0
       })
-      // datasets.push({
-      //   label: 'Planned Spending',
-      //   data: plannedData,
-      //   stack:'2',
-      //   backgroundColor: '#CAFFBF',
-      //   borderWidth:0
-      // })
     }else{
       var categories = expenseIncomeButton == 0 ? props.expenseCategories : props.incomeCategories;
       var categoryIds = []
       for(var i = 0; i < categories.length; i++){
         categoryIds.push(categories[i]['CategoryId'])
-      }
-      for(var i = 0; i <= categories.length; i++){
         actualData.push([])
       }
-      for(var curDate = firstDate; curDate <= lastDate; curDate.setDate(curDate.getDate() + 1)){
+      for(var curDate = startDate; curDate <= endDate; curDate.setDate(curDate.getDate() + 1)){
         labels.push(curDate.toLocaleDateString())
-        for(var i = 0; i <= categories.length; i++){
+        for(var i = 0; i < categories.length; i++){
           actualData[i].push(0)
         }
       }
       for(var i = 0; i < transactions.length; i++){
         var curDate = transactions[i]['Date']
         var labelIndex = labels.indexOf(curDate)
-        var categoryIndex = categoryIds.indexOf(transactions[i]['CategoryId'])
-        actualData[categoryIndex][labelIndex] += transactions[i]['Amount']
+        if(labelIndex != -1){
+          var categoryIndex = categoryIds.indexOf(Number(transactions[i]['CategoryId']))
+          console.log(transactions[i]['CategoryId'])
+          console.log(categoryIds)
+          actualData[categoryIndex][labelIndex] += transactions[i]['Amount']
+        }
       }
       for(var i = 0; i < categories.length; i++){
         datasets.push({
           label : categories[i]['CategoryName'],
           stack:'1',
           data : actualData[i],
-          backgroundColor : colors[i],
+          backgroundColor : constants.colors[i],
           borderWidth : 0
         });
       }
     }
-    
     return {
       labels: labels,
       datasets: datasets
     }
   }
 
-  function handleClick(button, buttonNum){
-    if(button == "expenseIncome"){
-      setExpenseIncomeButton(buttonNum); 
-    }else if(button == "totalCategory"){
-      setTotalCategoryButton(buttonNum); 
+  function getBarChartDataByWeek(startDate, endDate, transactions){
+    var labels = []
+    var dateRanges = []
+    var actualData = []
+    var datasets = []
+    if(totalCategoryButton == 0){
+      for(var curDate = startDate; curDate <= endDate;){
+        var nextDate =  new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() + 6)
+        if(nextDate > endDate)
+          nextDate = endDate;
+        labels.push((curDate.getMonth() + 1).toString() + "/" + curDate.getDate().toString() + "-" + (nextDate.getMonth() + 1).toString() + "/" + nextDate.getDate().toString())
+        dateRanges.push([curDate, nextDate])
+        actualData.push(0)
+        curDate = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() + 7);
+      }
+      for(var i = 0; i < transactions.length; i++){
+        var curDate = new Date(transactions[i]['Date'])
+        for(var index = 0; index < dateRanges.length; index++){
+          if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
+            actualData[index] += transactions[i]['Amount'];
+            break;
+          }
+        }
+      }
+      datasets.push({
+        label: 'Total Spending',
+        data: actualData,
+        stack: '1',
+        backgroundColor: '#28a744',
+        borderWidth:0
+      })
+    }else{
+      var categories = expenseIncomeButton == 0 ? props.expenseCategories : props.incomeCategories;
+      var categoryIds = []
+      for(var i = 0; i < categories.length; i++){
+        categoryIds.push(categories[i]['CategoryId'])
+        actualData.push([])
+      }
+      for(var curDate = startDate; curDate <= endDate;){
+        var nextDate =  new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() + 6)
+        if(nextDate > endDate)
+          nextDate = endDate;
+        labels.push((curDate.getMonth() + 1).toString() + "/" + curDate.getDate().toString() + "-" + (nextDate.getMonth() + 1).toString() + "/" + nextDate.getDate().toString())
+        dateRanges.push([curDate, nextDate])
+        for(var i = 0; i < categories.length; i++){
+          actualData[i].push(0)
+        }
+        curDate = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate() + 7);
+      }
+      for(var i = 0; i < transactions.length; i++){
+        var curDate = new Date(transactions[i]['Date'])
+        for(var index = 0; index < dateRanges.length; index++){
+          if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
+            var categoryIndex = categoryIds.indexOf(Number(transactions[i]['CategoryId']))
+            actualData[categoryIndex][index] += transactions[i]['Amount']
+            break;
+          }
+        }
+      }
+      for(var i = 0; i < categories.length; i++){
+        datasets.push({
+          label : categories[i]['CategoryName'],
+          stack:'1',
+          data : actualData[i],
+          backgroundColor : constants.colors[i],
+          borderWidth : 0
+        });
+      }
     }
-    props.setBarKey(props.barKey + 1)
+    return {
+      labels: labels,
+      datasets: datasets
+    }
+  }
+
+  function getBarChartDataByMonth(startDate, endDate, transactions){
+    var labels = []
+    var dateRanges = []
+    var actualData = []
+    var datasets = []
+    if(totalCategoryButton == 0){
+      for(var curDate = startDate; curDate <= endDate;){
+        var nextDate =  new Date(curDate.getFullYear(), curDate.getMonth() + 1, 1)
+        nextDate.setDate(nextDate.getDate() - 1)
+
+        var isLastDate = false;
+        if(nextDate > endDate){
+          nextDate = endDate;
+          isLastDate = true
+        }
+        
+        if(curDate.getDate() == 1 && !isLastDate)
+          labels.push(constants.monthNames[curDate.getMonth()])
+        else
+          labels.push((curDate.getMonth() + 1).toString() + "/" + curDate.getDate().toString() + "-" + (nextDate.getMonth() + 1).toString() + "/" + nextDate.getDate().toString())
+        
+        dateRanges.push([curDate, nextDate])
+        actualData.push(0)
+        curDate = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 1)
+      }
+      for(var i = 0; i < transactions.length; i++){
+        var curDate = new Date(transactions[i]['Date'])
+        for(var index = 0; index < dateRanges.length; index++){
+          if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
+            actualData[index] += transactions[i]['Amount'];
+            break;
+          }
+        }
+      }
+      datasets.push({
+        label: 'Total Spending',
+        data: actualData,
+        stack: '1',
+        backgroundColor: '#28a744',
+        borderWidth:0
+      })
+    }else{
+      var categories = expenseIncomeButton == 0 ? props.expenseCategories : props.incomeCategories;
+      var categoryIds = []
+      for(var i = 0; i < categories.length; i++){
+        categoryIds.push(categories[i]['CategoryId'])
+        actualData.push([])
+      }
+      for(var curDate = startDate; curDate <= endDate;){
+        var nextDate =  new Date(curDate.getFullYear(), curDate.getMonth() + 1, 1)
+        nextDate.setDate(nextDate.getDate() - 1)
+        var isLastDate = false;
+        if(nextDate > endDate){
+          nextDate = endDate;
+          isLastDate = true
+        }
+        if(curDate.getDate() == 1 && !isLastDate)
+          labels.push(constants.monthNames[curDate.getMonth()])
+        else
+          labels.push((curDate.getMonth() + 1).toString() + "/" + curDate.getDate().toString() + "-" + (nextDate.getMonth() + 1).toString() + "/" + nextDate.getDate().toString())
+        dateRanges.push([curDate, nextDate])
+        for(var i = 0; i < categories.length; i++){
+          actualData[i].push(0)
+        }
+        curDate = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 1)
+      }
+      for(var i = 0; i < transactions.length; i++){
+        var curDate = new Date(transactions[i]['Date'])
+        for(var index = 0; index < dateRanges.length; index++){
+          if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
+            var categoryIndex = categoryIds.indexOf(Number(transactions[i]['CategoryId']))
+            actualData[categoryIndex][index] += transactions[i]['Amount']
+            break;
+          }
+        }
+      }
+      for(var i = 0; i < categories.length; i++){
+        datasets.push({
+          label : categories[i]['CategoryName'],
+          stack:'1',
+          data : actualData[i],
+          backgroundColor : constants.colors[i],
+          borderWidth : 0
+        });
+      }
+    }
+    return {
+      labels: labels,
+      datasets: datasets
+    }
+  }
+
+  function getBarChartData(){
+    var transactions = expenseIncomeButton == 0 ? props.filteredExpenseTransactions : props.filteredIncomeTransactions;
+    var startDate = new Date(props.startDate.getFullYear(), props.startDate.getMonth(), props.startDate.getDate())
+    var endDate = new Date(props.endDate.getFullYear(), props.endDate.getMonth(), props.endDate.getDate())
+    var numDaysInFilteredRange = Math.ceil((Math.abs(endDate - startDate)) / (1000 * 60 * 60 * 24)) + 1;
+    if(numDaysInFilteredRange < 42)//6 weeks or lower
+      return getBarChartDataByDay(startDate, endDate, transactions)
+    if(numDaysInFilteredRange < 168)//6 months and lower
+      return getBarChartDataByWeek(startDate, endDate, transactions)
+    return getBarChartDataByMonth(startDate, endDate, transactions)//6 months and higher
   }
 
   return (
-    <Grid container spacing={1}>
-      <Grid item xs={6}>
-        <br/><br/>
-        <h5 style={{float:'right'}}>{titles[expenseIncomeButton][totalCategoryButton]}</h5>
-      </Grid>
-      <Grid item xs={3}></Grid>
-      <Grid item xs={3}>
-        <ButtonGroup size="sm" style={{float:'right', marginBottom:2}}>
-          <Button variant="success" active={expenseIncomeButton == 0 ? true : false} onClick={() => handleClick("expenseIncome", 0)}>Expenses</Button>
-          <Button variant="success" active={expenseIncomeButton == 1 ? true : false} onClick={() => handleClick("expenseIncome", 1)}>Income</Button>
-        </ButtonGroup>
-        <br/>
-        <ButtonGroup size="sm" style={{float:'right'}}>
-          <Button variant="success" active={totalCategoryButton == 0 ? true : false} onClick={() => handleClick("totalCategory", 0)}>Total</Button>
-          <Button variant="success" active={totalCategoryButton == 1 ? true : false} onClick={() => handleClick("totalCategory", 1)}>By Category</Button>
-        </ButtonGroup>
-      </Grid>
-      <Grid item xs={12}>
         <div>
+          <BarButtons
+            expenseIncomeButton = {expenseIncomeButton} setExpenseIncomeButton = {setExpenseIncomeButton}
+            totalCategoryButton = {totalCategoryButton} setTotalCategoryButton = {setTotalCategoryButton}
+            expenseTransactions = {props.expenseTransactions}
+            incomeTransactions = {props.incomeTransactions}
+            setFilteredTransactions = {props.setFilteredTransactions}
+            dateButton = {dateButton} setDateButton = {setDateButton}
+            startDate = {props.startDate} endDate = {props.endDate} setFilters = {props.setFilters}
+            setBarKey = {props.setBarKey}
+          />
+          <div> 
           <Bar 
-            height = {355}
+            height = {430}
             key = {props.barKey}
             data={getBarChartData}
             options={{
@@ -147,6 +274,7 @@ function BarChart(props) {
               scales: {
                 yAxes: [{
                     ticks: {
+                        min:0,
                         callback: function(value, index, values) {
                             return '$' + value;
                         }
@@ -159,17 +287,16 @@ function BarChart(props) {
                         var label = data.datasets[tooltipItem.datasetIndex].label || '';
                         var value = tooltipItem.value;
 
-                        label += ': $' + value;
+                        label += ': $' + Number(value).toFixed(2);
                         return label;
                     }
                 }
             }
             }}
           />
-        </div>
-        
-      </Grid>
-    </Grid>        
+          </div>
+         
+        </div>  
   );
 }
 

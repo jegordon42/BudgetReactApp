@@ -53,7 +53,7 @@ export default function Login(props) {
   const [message, setMessage] = useState("")
 
   function handleLogin(){
-    fetch('https://budgetflaskapp.azurewebsites.net/Login?email=' + email + '&password=' + password)
+    fetch('/Login?email=' + email + '&password=' + password)
       .then(response => response.json())
       .then(result => {
         if(result['message'] == 'Success'){
@@ -68,6 +68,7 @@ export default function Login(props) {
             expenseTransactions[i]['Date'] = date.toLocaleDateString()
           }
           props.setExpenseTransactions(expenseTransactions)
+          props.setFilteredTransactions(expenseTransactions, "Expense")
 
           var incomeTransactions = result['incomeTransactions'];
           for(var i = 0; i < incomeTransactions.length; i++){
@@ -76,6 +77,7 @@ export default function Login(props) {
             incomeTransactions[i]['Date'] = date.toLocaleDateString()
           }
           props.setIncomeTransactions(incomeTransactions)
+          props.setFilteredTransactions(incomeTransactions, "Income")
 
           props.setPage("dashboard")
         }

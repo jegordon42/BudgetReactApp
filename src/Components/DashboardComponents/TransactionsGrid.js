@@ -19,14 +19,51 @@ function TransactionsGrid(props) {
     params.api.sizeColumnsToFit(); 
   }
 
-  function saveTransactions(transactions){
-    fetch('https://budgetflaskapp.azurewebsites.net/UpdateTransactions', {
+  function addFilteredOutTransactions(transactions){
+    var transactionIds = []
+    for(var i = 0; i < transactions; i++){
+      transactionIds.push(transactions[i].TransactionId)
+    }
+    for(var i = 0; i < props.transactions; i++){
+      if(!transactionIds.includes(props.transactions[i].TransactionId))
+        transactions.push(props.transactions[i])
+    }
+  }
+
+  function onCellValueChanged(event){
+    fetch('/UpdateTransaction', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
-            userId : props.user['userId'],
-            transactionType : props.TransactionType.replace('es', 'e'),
-            transactions : transactions
+            transaction : event.data
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+      var transactions = props.filteredTransactions;
+      transactions[event.rowIndex] = event.data;
+      addFilteredOutTransactions(transactions)
+      props.setTransactions(transactions)
+      props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
+    })
+    .catch(e => {
+        console.log(e);
+    });
+  }
+
+  function addTransaction(){
+    if(props.categories.length ==0){
+      props.setShowError(true);
+      props.setErrorMessage("Please add some categories before adding a transaction.")
+      return;
+    }
+    fetch('/AddTransactions', {
+        method : "POST",
+        headers : {"Content-type" : "application/json"},
+        body: JSON.stringify({
+          userId : props.user['userId'],
+          transactionType : props.TransactionType.replace('es', 'e'),
+          transactionsToAdd : [{CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : (new Date()).toLocaleDateString()}]
         })
     })
     .then(response => response.json())
@@ -38,27 +75,40 @@ function TransactionsGrid(props) {
         transactions[i]['Date'] = date.toLocaleDateString()
       }
       props.setTransactions(transactions)
+      props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
     })
     .catch(e => {
         console.log(e);
     });
   }
 
-  function addTransaction(){
-      var today = new Date();
-      today.setDate(today.getDate())
-      var transactions = [{TransactionId: 0, CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : today.toLocaleDateString()}].concat(props.transactions)
-      saveTransactions(transactions);
-  }
-
   function deleteTransactions(){
-    var transactions = [];
-    for(var i = 0; i < props.transactions.length; i++){
-        var transaction = props.transactions[i];
-        if(!selectedTransactions.includes(transaction.TransactionId))
-          transactions.push(transaction);
+    if(selectedTransactions.length ==0){
+      props.setShowError(true);
+      props.setErrorMessage("Please select a transaction to be deleted.")
+      return;
     }
-    saveTransactions(transactions);
+    fetch('/DeleteTransactions', {
+        method : "POST",
+        headers : {"Content-type" : "application/json"},
+        body: JSON.stringify({
+          transactionIdsToDelete : selectedTransactions
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+      var transactions = [];
+      for(var i = 0; i < props.transactions.length; i++){
+          var transaction = props.transactions[i];
+          if(!selectedTransactions.includes(transaction.TransactionId))
+            transactions.push(transaction);
+      }
+      props.setTransactions(transactions)
+      props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
+    })
+    .catch(e => {
+        console.log(e);
+    });
 }
 
   function CategoryCellRenderer(params){
@@ -69,6 +119,14 @@ function TransactionsGrid(props) {
           </Form.Control>
   }
 
+  function CategoryFilter(){
+    return <Form.Control as="select" style={{width:'100%'}}>
+              <option key={0} value={0}>All</option>
+              {props.categories.map((category) => 
+                <option key={category.CategoryId} value={category.CategoryId}>{category.CategoryName}</option>
+              )}
+            </Form.Control>
+  }
   function LeftAlignedCellRenderer(params){
     return <p style={{textAlign:'left'}}>{params.value}</p>
   }
@@ -96,10 +154,12 @@ function TransactionsGrid(props) {
             />
   }
 
-  function onCellValueChanged(event){
-    var transactions = props.transactions;
-    transactions[event.rowIndex] = event.data;
-    saveTransactions(transactions);
+  function handleImportClick(){
+    if(props.categories.length ==0){
+      props.setShowError(true);
+      props.setErrorMessage("Please add some categories before attempting to import.")
+      return;
+    }
   }
 
   return (
@@ -109,25 +169,32 @@ function TransactionsGrid(props) {
       </Grid>
       <Grid item xs={5}>
           <Button variant="danger" size="sm" style={{float:'right'}} onClick={deleteTransactions}>Delete</Button>
-          <Button variant="primary" size="sm" style={{float:'right', marginRight:5}} onClick={() => {setShowImport(true)}}>Import</Button>
+          <Button variant="primary" size="sm" style={{float:'right', marginRight:5}} onClick={handleImportClick}>Import</Button>
           <Button variant="primary" size="sm" style={{float:'right', marginRight:5}} onClick={addTransaction}>Add</Button>
       </Grid>
       <Grid item xs={12}>
           <div className="ag-theme-alpine" style={{ height: 400, width: '100%' } }>
               <AgGridReact
                 key = {props.gridKey}
-                rowData = {props.transactions}
+                rowData = {props.filteredTransactions}
                 onGridReady = {onGridReady}
                 onCellValueChanged = {onCellValueChanged}
               >
                 <AgGridColumn headerName="" field="TransactionId" maxWidth={50} resizable cellRendererFramework={CheckBoxCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Category" field="CategoryId" width={200} editable resizable cellRendererFramework={CategoryCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Description" field="Description" maxWidth={300} editable resizable cellRendererFramework={LeftAlignedCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Amount" field="Amount" width={100} editable resizable cellRendererFramework={MoneyCellRenderer}></AgGridColumn>
-                <AgGridColumn headerName="Date" field="Date" width={130} editable resizable cellRendererFramework={DateCellRenderer}></AgGridColumn>
+                <AgGridColumn headerName="Category" field="CategoryId" width={200} editable resizable cellRendererFramework={CategoryCellRenderer} filterFramework={CategoryFilter} sortable ></AgGridColumn>
+                <AgGridColumn headerName="Description" field="Description" editable resizable cellRendererFramework={LeftAlignedCellRenderer} filter='agDateColumnFilter'></AgGridColumn>
+                <AgGridColumn headerName="Amount" field="Amount" width={130} editable resizable cellRendererFramework={MoneyCellRenderer} filter='agNumberColumnFilter'></AgGridColumn>
+                <AgGridColumn headerName="Date" field="Date" width={130} editable resizable cellRendererFramework={DateCellRenderer} filter='agDateColumnFilter'></AgGridColumn>
               </AgGridReact>
           </div>
-          <ImportTransaction show={showImport} TransactionType={props.TransactionType} handleClose={() => {setShowImport(false)}} />
+          <ImportTransaction 
+          show={showImport} setShowImport={setShowImport} 
+          user={props.user} 
+          setTransactions={props.setTransactions} 
+          setFilteredTransactions={props.setFilteredTransactions} 
+          TransactionType={props.TransactionType} 
+          categories={props.categories} 
+          />
       </Grid>
     </Grid> 
   );

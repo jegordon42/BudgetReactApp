@@ -32,6 +32,9 @@ function Transactions(props) {
             TransactionType = "Expenses"
             transactions = {props.expenseTransactions}
             setTransactions = {props.setExpenseTransactions}
+            filteredTransactions = {props.filteredExpenseTransactions}
+            setFilteredTransactions = {props.setFilteredTransactions}
+            setShowError = {props.setShowError} setErrorMessage={props.setErrorMessage}
             categories = {props.expenseCategories}
           />
         </Paper>
@@ -42,8 +45,9 @@ function Transactions(props) {
             user = {props.user}
             gridKey = {props.gridKey}
             TransactionType = "Income"
-            transactions = {props.incomeTransactions}
-            setTransactions = {props.setIncomeTransactions}
+            transactions = {props.incomeTransactions} setTransactions = {props.setIncomeTransactions}
+            filteredTransactions = {props.filteredIncomeTransactions} setFilteredTransactions = {props.setFilteredTransactions}
+            setShowError = {props.setShowError} setErrorMessage={props.setErrorMessage}
             categories = {props.incomeCategories}
           />
         </Paper>

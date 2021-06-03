@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {ButtonGroup, Button} from 'react-bootstrap';
 import Grid from '@material-ui/core/Grid';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 function PieButtons(props) {
   const pieTitles = [
@@ -20,13 +21,25 @@ function PieButtons(props) {
   return (
     <Grid container spacing={3}>
       <Grid item xs={7}>
+        {/* <Button 
+            variant="secondary" 
+            active={props.pieIncomeExpenseButton == 0 ? true : false} 
+            onClick={() => handleClick("IncomeExpense", 0)}
+            style={{float:'left'}}
+            size="sm"
+          >
+            <span>
+            <SettingsIcon style={{fontSize:15, marginTop:-2}}/>{' '}
+             Edit Categories
+            </span>
+        </Button> */}
         <br/>
-        <h5 style={{float:'right'}}>
+        <h5 style={{float:'left', marginTop:10, marginBottom:10}}>
           {pieTitles[props.pieIncomeExpenseButton][props.pieActualPlannedButton]}
         </h5>
       </Grid>
       <Grid item xs={5}>
-        <ButtonGroup size="sm" style={{float:'right', marginBottom:2}}>
+      <ButtonGroup size="sm" style={{float:'right', marginBottom:2}}>
           <Button 
             variant="success" 
             active={props.pieIncomeExpenseButton == 0 ? true : false} 
