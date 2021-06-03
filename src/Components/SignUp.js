@@ -77,7 +77,7 @@ export default function SignUp(props) {
     if(!isValid()){
       return;
     }
-    fetch('/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
+    fetch('https://budgetflaskapp.azurewebsites.net/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
     .then(response => response.json())
     .then(result => {
       if(result['message'] === 'Success'){

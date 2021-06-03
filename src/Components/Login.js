@@ -53,7 +53,7 @@ export default function Login(props) {
   const [message, setMessage] = useState("")
 
   function handleLogin(){
-    fetch('/Login?email=' + email + '&password=' + password)
+    fetch('https://budgetflaskapp.azurewebsites.net/Login?email=' + email + '&password=' + password)
       .then(response => response.json())
       .then(result => {
         if(result['message'] == 'Success'){

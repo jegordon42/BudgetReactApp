@@ -31,7 +31,7 @@ function TransactionsGrid(props) {
   }
 
   function onCellValueChanged(event){
-    fetch('/UpdateTransaction', {
+    fetch('https://budgetflaskapp.azurewebsites.net/UpdateTransaction', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
@@ -57,7 +57,7 @@ function TransactionsGrid(props) {
       props.setErrorMessage("Please add some categories before adding a transaction.")
       return;
     }
-    fetch('/AddTransactions', {
+    fetch('https://budgetflaskapp.azurewebsites.net/AddTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
@@ -88,7 +88,7 @@ function TransactionsGrid(props) {
       props.setErrorMessage("Please select a transaction to be deleted.")
       return;
     }
-    fetch('/DeleteTransactions', {
+    fetch('https://budgetflaskapp.azurewebsites.net/DeleteTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
@@ -160,6 +160,7 @@ function TransactionsGrid(props) {
       props.setErrorMessage("Please add some categories before attempting to import.")
       return;
     }
+    setShowImport(true)
   }
 
   return (

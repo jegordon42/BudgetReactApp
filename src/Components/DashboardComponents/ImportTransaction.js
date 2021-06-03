@@ -62,7 +62,7 @@ function ImportTransaction(props) {
     }
     
     function handleImport(){
-        fetch('/AddTransactions', {
+        fetch('https://budgetflaskapp.azurewebsites.net/AddTransactions', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({

@@ -17,7 +17,7 @@ function Settings(props) {
     }
 
     function addCategory(){
-        fetch('/AddCategories', {
+        fetch('https://budgetflaskapp.azurewebsites.net/AddCategories', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
@@ -42,7 +42,7 @@ function Settings(props) {
       }
 
     function deleteCategory(){
-        fetch('/DeleteCategories', {
+        fetch('https://budgetflaskapp.azurewebsites.net/DeleteCategories', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
@@ -90,7 +90,7 @@ function Settings(props) {
     }
 
     function onCellValueChanged(event){
-        fetch('/UpdateCategory', {
+        fetch('https://budgetflaskapp.azurewebsites.net/UpdateCategory', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
