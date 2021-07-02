@@ -12,6 +12,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import * as constants from './Constants'
 
 function Copyright() {
   return (
@@ -53,7 +54,7 @@ export default function Login(props) {
   const [message, setMessage] = useState("")
 
   function handleLogin(){
-    fetch('https://budgetflaskapp.azurewebsites.net/Login?email=' + email + '&password=' + password)
+    fetch(constants.url + 'Login?email=' + email + '&password=' + password)
       .then(response => response.json())
       .then(result => {
         if(result['message'] == 'Success'){
@@ -61,21 +62,11 @@ export default function Login(props) {
           props.setExpenseCategories(result['expenseCategories']);
           props.setIncomeCategories(result['incomeCategories']);
 
-          var expenseTransactions = result['expenseTransactions'];
-          for(var i = 0; i < expenseTransactions.length; i++){
-            var date = new Date(expenseTransactions[i]['Date']);
-            date.setDate(date.getDate() + 1)
-            expenseTransactions[i]['Date'] = date.toLocaleDateString()
-          }
+          var expenseTransactions = constants.adjustTransDates(result['expenseTransactions']);
           props.setExpenseTransactions(expenseTransactions)
           props.setFilteredTransactions(expenseTransactions, "Expense")
 
-          var incomeTransactions = result['incomeTransactions'];
-          for(var i = 0; i < incomeTransactions.length; i++){
-            var date = new Date(incomeTransactions[i]['Date']);
-            date.setDate(date.getDate() + 1)
-            incomeTransactions[i]['Date'] = date.toLocaleDateString()
-          }
+          var incomeTransactions = constants.adjustTransDates(result['incomeTransactions']);
           props.setIncomeTransactions(incomeTransactions)
           props.setFilteredTransactions(incomeTransactions, "Income")
 

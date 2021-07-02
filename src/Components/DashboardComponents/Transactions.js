@@ -30,6 +30,7 @@ function Transactions(props) {
             user = {props.user}
             gridKey = {props.gridKey}
             TransactionType = "Expenses"
+            startDate = {props.startDate} endDate = {props.endDate}
             transactions = {props.expenseTransactions}
             setTransactions = {props.setExpenseTransactions}
             filteredTransactions = {props.filteredExpenseTransactions}
@@ -45,6 +46,7 @@ function Transactions(props) {
             user = {props.user}
             gridKey = {props.gridKey}
             TransactionType = "Income"
+            startDate = {props.startDate} endDate = {props.endDate}
             transactions = {props.incomeTransactions} setTransactions = {props.setIncomeTransactions}
             filteredTransactions = {props.filteredIncomeTransactions} setFilteredTransactions = {props.setFilteredTransactions}
             setShowError = {props.setShowError} setErrorMessage={props.setErrorMessage}

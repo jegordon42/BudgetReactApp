@@ -39,7 +39,6 @@ function App() {
       if(newStartDate <= transDate && newEndDate >= transDate)
         incomeTrans.push(transaction)
     }
-
     setStartDate(newStartDate)
     setEndDate(newEndDate)
     setFilteredExpenseTransactions(expenseTrans)
@@ -51,6 +50,7 @@ function App() {
     for(var i = 0; i < transactions.length; i++){
       var transaction = transactions[i];
       var transDate = new Date(transaction['Date'])
+      
       if(startDate <= transDate && endDate >= transDate)
         trans.push(transaction)
     }

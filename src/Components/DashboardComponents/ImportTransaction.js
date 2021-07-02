@@ -7,6 +7,7 @@ import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import DeleteIcon from '@material-ui/icons/Delete';
+import * as constants from '../Constants'
 const papa = require('papaparse');
 
 function ImportTransaction(props) {
@@ -62,7 +63,7 @@ function ImportTransaction(props) {
     }
     
     function handleImport(){
-        fetch('https://budgetflaskapp.azurewebsites.net/AddTransactions', {
+        fetch(constants.url + 'AddTransactions', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
@@ -73,12 +74,7 @@ function ImportTransaction(props) {
         })
         .then(response => response.json())
         .then(result => {
-          var transactions = result['transactions'];
-          for(var i = 0; i < transactions.length; i++){
-            var date = new Date(transactions[i]['Date']);
-            date.setDate(date.getDate() + 1)
-            transactions[i]['Date'] = date.toLocaleDateString()
-          }
+          var transactions = constants.adjustTransDates(result['transactions']);
           props.setTransactions(transactions)
           props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
           handleClose()

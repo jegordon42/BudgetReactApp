@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { SentimentDissatisfiedOutlined } from '@material-ui/icons';
+import * as constants from './Constants'
 
 function Copyright() {
   return (
@@ -77,7 +78,7 @@ export default function SignUp(props) {
     if(!isValid()){
       return;
     }
-    fetch('https://budgetflaskapp.azurewebsites.net/SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
+    fetch(constants.url + 'SignUp?firstName=' + firstName + '&lastName=' + lastName + '&email=' + email + '&password=' + password)
     .then(response => response.json())
     .then(result => {
       if(result['message'] === 'Success'){

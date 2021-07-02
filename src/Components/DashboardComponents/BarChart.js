@@ -21,7 +21,7 @@ function BarChart(props) {
         var curDate = transactions[i]['Date']
         var index = labels.indexOf(curDate)
         if(index != -1)
-          actualData[index] += transactions[i]['Amount']
+          actualData[index] += Number(transactions[i]['Amount'])
       }
       datasets.push({
         label: 'Total Spending',
@@ -48,9 +48,7 @@ function BarChart(props) {
         var labelIndex = labels.indexOf(curDate)
         if(labelIndex != -1){
           var categoryIndex = categoryIds.indexOf(Number(transactions[i]['CategoryId']))
-          console.log(transactions[i]['CategoryId'])
-          console.log(categoryIds)
-          actualData[categoryIndex][labelIndex] += transactions[i]['Amount']
+          actualData[categoryIndex][labelIndex] += Number(transactions[i]['Amount'])
         }
       }
       for(var i = 0; i < categories.length; i++){
@@ -63,6 +61,10 @@ function BarChart(props) {
         });
       }
     }
+    console.log({
+      labels: labels,
+      datasets: datasets
+    })
     return {
       labels: labels,
       datasets: datasets
@@ -88,7 +90,7 @@ function BarChart(props) {
         var curDate = new Date(transactions[i]['Date'])
         for(var index = 0; index < dateRanges.length; index++){
           if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
-            actualData[index] += transactions[i]['Amount'];
+            actualData[index] += Number(transactions[i]['Amount']);
             break;
           }
         }
@@ -123,7 +125,7 @@ function BarChart(props) {
         for(var index = 0; index < dateRanges.length; index++){
           if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
             var categoryIndex = categoryIds.indexOf(Number(transactions[i]['CategoryId']))
-            actualData[categoryIndex][index] += transactions[i]['Amount']
+            actualData[categoryIndex][index] += Number(transactions[i]['Amount'])
             break;
           }
         }
@@ -173,7 +175,7 @@ function BarChart(props) {
         var curDate = new Date(transactions[i]['Date'])
         for(var index = 0; index < dateRanges.length; index++){
           if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
-            actualData[index] += transactions[i]['Amount'];
+            actualData[index] += Number(transactions[i]['Amount']);
             break;
           }
         }
@@ -215,7 +217,7 @@ function BarChart(props) {
         for(var index = 0; index < dateRanges.length; index++){
           if(curDate >= dateRanges[index][0] && curDate <= dateRanges[index][1]){
             var categoryIndex = categoryIds.indexOf(Number(transactions[i]['CategoryId']))
-            actualData[categoryIndex][index] += transactions[i]['Amount']
+            actualData[categoryIndex][index] += Number(transactions[i]['Amount'])
             break;
           }
         }

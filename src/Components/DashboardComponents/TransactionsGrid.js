@@ -6,6 +6,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import ImportTransaction from './ImportTransaction'
 import { GridApi } from 'ag-grid-community';
+import * as constants from '../Constants'
 
 function TransactionsGrid(props) {
   const [gridApi, setGridApi] = useState(null);
@@ -31,7 +32,7 @@ function TransactionsGrid(props) {
   }
 
   function onCellValueChanged(event){
-    fetch('https://budgetflaskapp.azurewebsites.net/UpdateTransaction', {
+    fetch(constants.url + 'UpdateTransaction', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
@@ -57,23 +58,22 @@ function TransactionsGrid(props) {
       props.setErrorMessage("Please add some categories before adding a transaction.")
       return;
     }
-    fetch('https://budgetflaskapp.azurewebsites.net/AddTransactions', {
+    var newDate = new Date()
+    if(newDate < props.startDate || newDate > props.endDate)
+      newDate = props.endDate
+    fetch(constants.url + 'AddTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({
           userId : props.user['userId'],
           transactionType : props.TransactionType.replace('es', 'e'),
-          transactionsToAdd : [{CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : (new Date()).toLocaleDateString()}]
+          transactionsToAdd : [{CategoryId: props.categories[0].CategoryId, Description: "", Amount : 0, Date : newDate.toLocaleDateString()}]
         })
     })
     .then(response => response.json())
     .then(result => {
-      var transactions = result['transactions'];
-      for(var i = 0; i < transactions.length; i++){
-        var date = new Date(transactions[i]['Date']);
-        date.setDate(date.getDate() + 1)
-        transactions[i]['Date'] = date.toLocaleDateString()
-      }
+      console.log(result['transactions']) 
+      var transactions = constants.adjustTransDates(result['transactions']);
       props.setTransactions(transactions)
       props.setFilteredTransactions(transactions, props.TransactionType.replace('es', 'e'))
     })
@@ -88,7 +88,7 @@ function TransactionsGrid(props) {
       props.setErrorMessage("Please select a transaction to be deleted.")
       return;
     }
-    fetch('https://budgetflaskapp.azurewebsites.net/DeleteTransactions', {
+    fetch(constants.url + 'DeleteTransactions', {
         method : "POST",
         headers : {"Content-type" : "application/json"},
         body: JSON.stringify({

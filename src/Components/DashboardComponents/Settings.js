@@ -4,6 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import * as constants from '../Constants'
 
 function Settings(props) {
     const [selectedTab, setSelectedTab] = useState("Expense") 
@@ -17,7 +18,7 @@ function Settings(props) {
     }
 
     function addCategory(){
-        fetch('https://budgetflaskapp.azurewebsites.net/AddCategories', {
+        fetch(constants.url + 'AddCategories', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
@@ -42,7 +43,7 @@ function Settings(props) {
       }
 
     function deleteCategory(){
-        fetch('https://budgetflaskapp.azurewebsites.net/DeleteCategories', {
+        fetch(constants.url + 'DeleteCategories', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({
@@ -90,7 +91,7 @@ function Settings(props) {
     }
 
     function onCellValueChanged(event){
-        fetch('https://budgetflaskapp.azurewebsites.net/UpdateCategory', {
+        fetch(constants.url + 'UpdateCategory', {
             method : "POST",
             headers : {"Content-type" : "application/json"},
             body: JSON.stringify({

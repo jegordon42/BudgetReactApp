@@ -97,6 +97,7 @@ function Dashboard(props) {
             <Transactions 
               user = {props.user}
               gridKey = {gridKey}
+              startDate = {props.startDate} endDate = {props.endDate}
               expenseTransactions = {props.expenseTransactions} setExpenseTransactions = {props.setExpenseTransactions}
               incomeTransactions = {props.incomeTransactions} setIncomeTransactions = {props.setIncomeTransactions}
               filteredExpenseTransactions = {props.filteredExpenseTransactions}
